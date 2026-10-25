@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+build/
+dist/
+*.spec
+*.tmp
+# results and personal files
+_rating/
+triage_output/
+rating_*/
+old_results_*/
+taste.txt
+.photo_tools_gui.json

@@ -1,0 +1,6 @@
+pillow>=9.1
+numpy>=1.24
+# optional: faster RAW preview extraction (the tools also work without it)
+# rawpy>=0.19
+# optional: lets the tools read HEIC photos (iPhone)
+# pillow-heif>=0.16

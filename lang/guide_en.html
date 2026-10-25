@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>FocalPick Guide</title>
+<style>
+:root{color-scheme:light dark;--bg:#fff;--fg:#222;--accent:#2b6cb0;--code:#f1f3f5;--line:#ccc;--th:#e8f0fa;--note:#fff8e1;--warn:#fdecea}
+@media (prefers-color-scheme:dark){:root{--bg:#171c28;--fg:#e4e8f1;--accent:#7fb2f0;--code:#252c3d;--line:#3a425a;--th:#222a3c;--note:#2e2a1c;--warn:#3a2224}}
+html{background:var(--bg)}
+body{font-family:Segoe UI,Arial,sans-serif;line-height:1.7;max-width:820px;margin:0 auto;padding:24px;color:var(--fg);background:var(--bg)}
+h1{border-bottom:3px solid var(--accent);padding-bottom:8px}
+h2{margin-top:36px;color:var(--accent)}
+code,pre{font-family:Consolas,monospace;direction:ltr;unicode-bidi:isolate}
+pre{background:var(--code);padding:10px 14px;border-radius:6px;overflow-x:auto;text-align:left;direction:ltr}
+code{background:var(--code);padding:1px 5px;border-radius:4px}
+table{border-collapse:collapse;width:100%;margin:10px 0}
+td,th{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
+th{background:var(--th)}
+.note{background:var(--note);border-left:4px solid #f5a623;padding:8px 14px;margin:12px 0}
+.warn{background:var(--warn);border-left:4px solid #d9534f;padding:8px 14px;margin:12px 0}
+</style>
+</head>
+<body>
+
+<h1><svg class="logo" viewBox="0 0 200 200" width="44" height="44" style="vertical-align:middle;margin-right:10px" aria-hidden="true"><rect width="200" height="200" rx="46" fill="#14213D"/><path d="M103.40,78.00 L162.81,112.30 A64 64 0 0 0 144.67,54.17 Z" fill="#F5B83D"/><path d="M120.75,91.94 L120.75,160.54 A64 64 0 0 0 162.03,115.77 Z" fill="#F4F7FB"/><path d="M117.35,113.94 L57.95,148.24 A64 64 0 0 0 117.35,161.60 Z" fill="#F4F7FB"/><path d="M96.60,122.00 L37.19,87.70 A64 64 0 0 0 55.33,145.83 Z" fill="#F4F7FB"/><path d="M79.25,108.06 L79.25,39.46 A64 64 0 0 0 37.97,84.23 Z" fill="#F4F7FB"/><path d="M82.65,86.06 L142.05,51.76 A64 64 0 0 0 82.65,38.40 Z" fill="#F4F7FB"/></svg><bdi>FocalPick</bdi> Guide</h1>
+
+<div class="note"><b>The easiest way:</b> the graphical interface (chapter 4). It is available in Hebrew and English, and it has a built-in guide (the "Guide" button or F1). If you prefer the command line, everything is explained further on. Both routes run the same tools.</div>
+
+<h2>1. What it is and why it is useful</h2>
+<p>This is a toolkit (Python scripts) that helps photographers choose their photos. It is designed for two situations:</p>
+<table>
+<tr><th>Situation</th><th>Tool</th><th>When to use it</th></tr>
+<tr><td><b>A. One photo shoot</b> (RAW files, and optionally JPEG and HEIC too)</td><td><code>rate_raw.py</code></td><td>You came back from a shoot with 100 photos and want to know which of the similar photos is the best, and which ones are the "gems" of the session.</td></tr>
+<tr><td><b>B. A full archive</b> (JPEG files)</td><td><code>photo_triage.py</code> followed by <code>ai_rate.py</code></td><td>You have thousands of old photos and want to pull out candidates for a portfolio.</td></tr>
+</table>
+<p>The tools use an AI model to "look" at the photos. You can choose from many providers (Gemini, OpenAI, Anthropic, Groq, OpenRouter and more, and also a model that runs on your own computer). Some of them have a <b>free tier</b> with limits (chapter 3). Your photo files are not changed or deleted. The only thing the tool can write next to a RAW file is a rating file <code>.xmp</code>, and only if you explicitly ask for it.</p>
+<div class="note">The rating is a <b>recommendation</b>, not a final verdict. The model can make mistakes, especially between almost identical photos. The comment it writes on each photo helps you check whether the reasoning is right, and the final choice is yours.</div>
+
+<h2>2. What you need before you start (one time)</h2>
+<ol>
+<li><b>Windows with Python</b> installed (Python 3.9 or later). <i>(If you use the EXE, you don't need Python. See chapter 8.)</i></li>
+<li><b>Installing the libraries</b>: open a command window (Windows key, type <code>cmd</code>, Enter) and run:
+<pre>pip install pillow numpy</pre>
+or, if you have <code>requirements.txt</code>: <code>pip install -r requirements.txt</code>.
+(Optional: <code>pip install rawpy</code>. If Windows blocks it, see "Troubleshooting". The tool also works without it. To read HEIC files from your phone: <code>pip install pillow-heif</code>.)</li>
+<li><b>A folder for the tool files</b>: save all the tool files in one folder, for example <code>C:\photo_triage</code>: the Python files (<code>photo_tools_gui.py</code>, <code>rate_raw.py</code>, <code>photo_triage.py</code>, <code>ai_rate.py</code>, <code>dupes.py</code>, <code>agreement.py</code> and more), the file <code>providers.json</code> and the <code>lang</code> folder (language files). <b>They must all stay together.</b> The easiest thing is to copy the whole folder as it is.</li>
+<li><b>An API key</b> from the AI provider you chose (chapter 3). The easiest way to start is with Gemini: sign in to <code>aistudio.google.com</code> with a Google account, choose "Get API key" and copy it. No credit card is needed. (A local model such as Ollama does not need a key.)</li>
+</ol>
+<div class="warn"><b>The key is a password.</b> Don't send it to anyone, and don't take a screenshot of a screen where it is visible. If you have exposed it, delete it on the same site and create a new one.</div>
+
+<h2>3. Choosing an AI provider and key</h2>
+<p>The model must understand <b>images</b> (a text-only model won't work). Model names change quickly, so the interface has a "Show available models" button, and on the command line you use <code>python ai_rate.py models &lt;folder&gt; --provider name</code>.</p>
+<table>
+<tr><th>Provider (<code>--provider</code>)</th><th>Free?</th><th>Notes</th><th>Environment variable for the key</th></tr>
+<tr><td>Google Gemini (<code>gemini</code>)</td><td>Free tier with daily limits</td><td>Accepts many images per request, so it suits shoots best. Key: aistudio.google.com</td><td><code>GEMINI_API_KEY</code> (or <code>GOOGLE_API_KEY</code>)</td></tr>
+<tr><td>OpenRouter (<code>openrouter</code>)</td><td>Models with the <code>:free</code> suffix. Limited to 20 requests per minute and 50 per day (1,000 per day after a one-time purchase of $10)</td><td>A gateway to many models. The free list changes, and some providers may store or train on what is sent.</td><td><code>OPENROUTER_API_KEY</code></td></tr>
+<tr><td>Groq (<code>groq</code>)</td><td>Possibly a free tier, check the site</td><td>Don't confuse it with xAI's Grok. Some models accept only 3 to 5 images per request, and the tool detects this and reduces the groups by itself.</td><td><code>GROQ_API_KEY</code></td></tr>
+<tr><td>OpenAI (<code>openai</code>)</td><td>Paid</td><td></td><td><code>OPENAI_API_KEY</code></td></tr>
+<tr><td>Anthropic / Claude (<code>anthropic</code>)</td><td>Paid</td><td></td><td><code>ANTHROPIC_API_KEY</code></td></tr>
+<tr><td>xAI / Grok (<code>xai</code>)</td><td>Usually paid</td><td></td><td><code>XAI_API_KEY</code></td></tr>
+<tr><td>Mistral (<code>mistral</code>)</td><td>Possibly free with limits</td><td></td><td><code>MISTRAL_API_KEY</code></td></tr>
+<tr><td>Together, Fireworks (<code>together</code>, <code>fireworks</code>)</td><td>Usually paid</td><td></td><td><code>TOGETHER_API_KEY</code>, <code>FIREWORKS_API_KEY</code></td></tr>
+<tr><td>Ollama, LM Studio (<code>ollama</code>, <code>lmstudio</code>)</td><td>Free, runs on your computer</td><td>No key, and nothing leaves your computer. You need a strong computer (preferably with a graphics card) and a vision model that you downloaded.</td><td>None</td></tr>
+<tr><td>Other (<code>custom</code>)</td><td>Depends</td><td>A server compatible with OpenAI. You must add <code>--base-url</code>.</td><td><code>AI_API_KEY</code></td></tr>
+</table>
+<div class="note">The providers' terms and quotas change. The table reflects what is known at the time of writing, so check each provider's website.</div>
+
+<h2>4. The graphical interface</h2>
+<ol>
+<li><b>Starting it:</b> <code>python photo_tools_gui.py</code> from a command window (or double-click <code>start_gui.bat</code>. If Windows blocks it, run it from the command line).</li>
+<li><b>Connecting to AI (at the top):</b> choose a provider, paste a key, click "Show available models" and choose a model that understands images. For each provider, the interface remembers the key, model and address separately. The "Server address" field appears only for providers where you run your own server (Other, Ollama, LM Studio), and the checkbox "Show only free models in the model list" appears only for OpenRouter.</li>
+<li><b>Tabs:</b> "Photo session", "Archive culling and rating", and "Duplicates" (the duplicates tab doesn't use AI, so the provider connection part is hidden on it). On the archive tab you choose between three steps (culling, rating the contact sheets, close check) and see only the fields of the step you selected. The results folder of step 1 fills in automatically for the next steps. You fill in the fields, and on the selected tab click <b>Run</b>.</li>
+<li><b>Advanced:</b> the "Advanced..." button at the bottom opens a window with settings most people never need to touch: grouping sensitivity, the gap in seconds between groups, the search for similar photos far apart in time, maximum photos per group, how many photos compete for the highlights and how many of them get stars, the pre-filter blur threshold, a separate model for the highlights step, and the pause between requests. An empty field in the first three numbers = automatic: the tool knows each provider's limit and learns a model's limit from the error it returns, and the number of highlights is set as a small percentage of the session. The taste check (chapter 7b) is in this window too.</li>
+<li><b>Type of shoot:</b> on the Photo session tab you can choose the "type of shoot" (street, events and people, sports and action, landscape and nature, portrait, cars). The choice adds guidance suited to that type for the AI, for example on the street the moment matters more than sharpness, and in sports the peak of the action. It works together with the taste file and does not replace it. "None" = general rating. Changing the type rates the session again.</li>
+<li><b>Copy model list:</b> the button next to "Show available models" copies the provider's model list to the clipboard, with whatever the provider reports about them, together with a ready question for a chatbot: which of them accept images, which are free and what the quotas are. The list itself does not say what is free, except for OpenRouter, so it is worth verifying against the provider's documentation.</li>
+<li><b>About:</b> in the top row, the version, the license (MIT) and links to the project and to supporting it.</li>
+<li><b>Language and guide:</b> at the top of the window, choose a language (Hebrew or English). Changing it asks you to restart the program. The "Guide" button (or F1) opens this guide in your browser. You can add another language in the file <code>lang/&lt;code&gt;.json</code> (see the README).</li>
+<li><b>Non-RAW files:</b> by default, the photo session works on RAW files only. With the checkbox "Include non-RAW files too" it also works on JPEG, PNG, TIFF and HEIC. If you shot both RAW and JPEG, a JPEG that has a RAW with the same name is skipped, so the same photo isn't rated twice. Stars are written to Lightroom only for RAW files, because Lightroom doesn't read a sidecar file for a JPEG.</li>
+<li><b>The first time</b> on the session tab, "Only check how the photos group, without AI and without an API key" is checked. This is intentional: you see first that the grouping makes sense. To actually rate, uncheck it.</li>
+<li><b>At the bottom:</b> the "Run" and "Stop" buttons (stopping takes up to a few seconds, and progress is saved), "Open results folder" and "Open report". The log shows what is happening, including errors and an explanation of what to do.</li>
+<li><b>Convenience:</b> keyboard shortcuts (copy, paste, cut, select all, undo, redo) also work when the keyboard is set to Hebrew, and there is a right-click menu. When the window is small you can scroll (mouse wheel or scroll bar).</li>
+<li><b>Explanations on hover:</b> when you hover the mouse over a field, a short explanation of what it does appears. A field whose value differs from the default is shown in a different color and in bold, and the "Restore defaults" button puts them back (paths and the provider connection don't change).</li>
+<li><b>Progress and estimate:</b> while running, a progress bar with an estimate of the time left is shown. Before a big job, an estimate of the number of requests and the time is shown, and you can cancel before it starts. The tool also remembers how many requests it sent in the last 24 hours and at what number the daily quota ran out last time, and warns you in advance when the job may stop halfway. This is only an estimate, because the tool can't see usage outside it. For a paid provider, a note to check the price on the provider's site is also shown.</li>
+<li><b>Log:</b> the buttons "Copy all" and "Save log..." are under the log. A copy of every run is also saved in the file <code>run_log.txt</code> in the results folder, so you have something to send when something goes wrong.</li>
+<li><b>Long runs:</b> the computer doesn't go to sleep while running. At the end, if the window is not in front, a sound plays and the program icon in the taskbar flashes. Enter starts a run, and Esc stops it.</li>
+<li><b>Light or dark theme:</b> in the top-right corner of the window, in the "Theme:" box, you can choose "System" (the default: the interface follows the Windows setting and switches by itself), "Light" or "Dark". The choice is saved.</li>
+<li><b>Profiles:</b> in the top-left corner, "Save profile..." saves the tool and model settings under a name, for example "Wedding" or "Old archive". Choosing a name from the list loads all of them at once. Paths and the key are not saved in a profile. "Delete" removes the selected profile.</li>
+<li><b>Dragging:</b> you can drag a folder from Explorer into the window (on Windows). Dragging onto a path field fills it. Dragging to another place fills the source field of the active tab, and a <code>.lrcat</code> file is automatically passed to the catalog selection.</li>
+<li><b>Showing results in a window:</b> the "Show results in window" button opens a gallery of the rated photos. You can sort by score, name or group, filter by a minimum score, limit the view to the session highlights, click a photo to enlarge it, and move between photos with the arrows. From the enlarged view you can show the original file in its folder or copy its path.</li>
+<li><b>Saving settings:</b> settings are saved in the file <code>.photo_tools_gui.json</code> in the user folder. <b>The key is not saved in this file.</b> If you checked "Remember the key on this computer", it is saved in the Windows Credential Manager, and deleted from there when you uncheck it.</li>
+</ol>
+
+<div class="cli">
+<h2>5. How to run each tool from the command line (the basics)</h2>
+<ol>
+<li>Open a command window and go to the tools folder:
+<pre>cd /d C:\photo_triage</pre></li>
+<li>Set the key (in every new window, because it is forgotten when you close the window):
+<pre>set GEMINI_API_KEY=YOUR_KEY</pre>
+(For another provider: use the variable name from the table in chapter 3, and add <code>--provider name --model שם_מודל</code> to the command. You can also use <code>--key</code> directly in the command.)</li>
+<li>Run the command. A path with spaces or Hebrew characters must be <b>inside quotation marks</b>. Tip: in File Explorer, hold Shift, right-click a folder and choose "Copy as path".</li>
+</ol>
+<div class="note">Every tool saves its progress as it goes. If a run stops (quota, network error, you closed the window), <b>run the same command again</b> and it continues from the same point.</div>
+
+</div>
+
+<h2>6. Mode A: rating a photo session (<code>rate_raw.py</code>)</h2>
+<h3>What the tool does</h3>
+<ol>
+<li>It reads from each RAW file the preview image that the camera saved inside it (fast, no conversion).</li>
+<li>It groups consecutive similar shots into one group.</li>
+<li>It asks the AI to rate each group: which one is the best, and how each photo does in composition, camera angle and light.</li>
+<li>It compares the best photos from all the groups and marks "gems" (💎) only if they are really outstanding. There may be few, or even none.</li>
+<li>It creates a report in the browser and a spreadsheet.</li>
+</ol>
+<h3>What is judged and what is not</h3>
+<p>The tool is meant to help before editing, so it judges only what can't be fixed later: <b>composition, camera angle, direction and quality of the light, and the moment</b> (expression, timing). It <b>ignores</b> exposure, white balance, colors and noise. In addition, it marks "flags" for things that can't be fixed in editing: missed focus, motion blur, closed eyes, a cut-off subject.</p>
+
+<h3>Running it, step by step</h3>
+<p><b>Step 1: checking the grouping, without AI and without a key.</b></p>
+<pre class="cli">python rate_raw.py "E:\Photos\הסשן שלי" --out "C:\rating\הסשן" --prepare-only</pre>
+<p>Open the file <code>C:\rating\הסשן\report.html</code> in a browser and check: do landscape photos show up as landscape? Are similar photos in the same group, and different ones separate?</p>
+<p><b>Step 2: a small trial with AI</b> (only 3 groups). If you don't use Gemini, add <code>--provider</code> and <code>--model</code>:</p>
+<pre class="cli">set GEMINI_API_KEY=YOUR_KEY
+python rate_raw.py "E:\Photos\הסשן שלי" --out "C:\rating\הסשן" --limit 3</pre>
+<p>Open the report again and check: did the model pick the same photo you would have picked in the group? Are the comments sensible?</p>
+<p><b>Step 3: the full run</b> (the same command without <code>--limit</code>):</p>
+<pre class="cli">python rate_raw.py "E:\Photos\הסשן שלי" --out "C:\rating\הסשן"</pre>
+<div class="note">Why <code>--out</code>? Without it, the results are saved inside your photo folder (in a folder named <code>_rating</code>), and they may get mixed up with the archive. It's better to save them in a separate place.</div>
+
+<h3>How to read the report (<code>report.html</code>)</h3>
+<ul>
+<li><b>At the top:</b> "Session highlights", with 💎 for the gems.</li>
+<li><b>Below:</b> each group, with its photos sorted from best to worst. The green frame and the label "Best in group" mark the winner.</li>
+<li><b>For each photo:</b> the file name, an overall score (1–10), the composition, angle and light scores, red flags (if any), and a short comment in Hebrew.</li>
+<li>Clicking a photo opens it at full size. To find it in Lightroom: Library Filter → Text → File Name, and paste the file name.</li>
+<li><b>The scale:</b> 5 = an ordinary photo that stays, 7 = strong, 8 = excellent, 9–10 = outstanding. The model is deliberately strict, so scores of 3 to 5 are normal.</li>
+</ul>
+<p>The same data is also in <code>ratings.csv</code> (opens in Excel). <b>Don't leave it open in Excel while the tool runs</b>, because the tool won't be able to write to it.</p>
+
+<div class="cli">
+<h3>All the options</h3>
+<p>Add them at the end of the command.</p>
+<table>
+<tr><th>Option</th><th>What it does</th></tr>
+<tr><td><code>--out folder</code></td><td>Where to save the results.</td></tr>
+<tr><td><code>--no-prefilter</code></td><td>Send all the photos for rating, even obvious mistakes. Default: before anything is sent to the AI, the tool checks on your computer and skips only photos that are very dark, very overexposed or very blurry. The list is in <code>rejected.csv</code> and at the bottom of the report.</td></tr>
+<tr><td><code>--prefilter-blur 12</code></td><td>The threshold for "very blurry". Lower = more careful, and skips fewer photos.</td></tr>
+<tr><td><code>--prepare-only</code></td><td>Only build the groups and the report, without AI.</td></tr>
+<tr><td><code>--limit N</code></td><td>Rate only N groups in this run (for a trial).</td></tr>
+<tr><td><code>--recursive</code></td><td>Include subfolders too (default: only the folder itself).</td></tr>
+<tr><td><code>--include-other</code></td><td>Rate JPEG, PNG, TIFF and HEIC files too, not only RAW. A JPEG saved next to a RAW with the same name is skipped.</td></tr>
+<tr><td><code>--keep-pairs</code></td><td>With <code>--include-other</code>: also rate a JPEG that has a RAW with the same name.</td></tr>
+<tr><td><code>--similarity 0.30</code></td><td>How different consecutive photos can be before a new group starts. A low number (0.20) = more small groups. A high number (0.40) = larger groups.</td></tr>
+<tr><td><code>--gap 120</code></td><td>The gap in seconds between shots that starts a new group.</td></tr>
+<tr><td><code>--far-gap 1800</code></td><td>Very similar shots taken up to this many seconds apart are grouped together even when other shots lie between them. 0 = off.</td></tr>
+<tr><td><code>--max-group 8</code></td><td>The maximum number of photos in a group. If the model accepts fewer photos per request, the tool reduces the groups by itself and remembers this.</td></tr>
+<tr><td><code>--candidates 12</code></td><td>How many photos are compared in the highlights step.</td></tr>
+<tr><td><code>--provider name</code></td><td>The AI provider (default: <code>gemini</code>). The list is in chapter 3.</td></tr>
+<tr><td><code>--model name</code></td><td>The model. For the list: <code>python ai_rate.py models "C:\photo_triage" --provider שם</code>. Without the flag, the provider's default model is chosen (if there is one).</td></tr>
+<tr><td><code>--highlight-model name</code></td><td>A (stronger) model only for the highlights step.</td></tr>
+<tr><td><code>--key key</code></td><td>The key directly in the command (instead of an environment variable).</td></tr>
+<tr><td><code>--base-url address</code></td><td>The address of your own server (for the <code>custom</code> provider, Ollama or LM Studio).</td></tr>
+<tr><td><code>--delay seconds</code></td><td>The pause between requests (default depends on the provider).</td></tr>
+<tr><td><code>--highlights 5</code></td><td>How many highlights get 4 stars or more (with <code>--write-xmp</code>).</td></tr>
+<tr><td><code>--taste file</code></td><td>A text file with your taste (see below).</td></tr>
+<tr><td><code>--genre type</code></td><td>The type of shoot: <code>street</code>, <code>events</code>, <code>sport</code>, <code>landscape</code>, <code>portrait</code> or <code>cars</code>. Adds guidance suited to it for the AI.</td></tr>
+</table>
+</div>
+
+<h3>The taste file (<code>taste.txt</code>)</h3>
+<p>Create a text file named <code>taste.txt</code> in the same folder as <code>rate_raw.py</code>, and write a few sentences in it, for example:</p>
+<pre>I love side light and real moments in portraits, without poses.
+In car photos I like low angles and a clean background.
+I don't like overly symmetrical compositions.</pre>
+<p>The tool adds this to the instructions for the AI automatically. <b>Note:</b> after you change the taste file or the type of shoot, the next run rates the groups again automatically (and uses quota).</p>
+
+<h3>Working with Lightroom</h3>
+<table>
+<tr><th>Option</th><th>What it does</th></tr>
+<tr><td><code>--write-xmp</code></td><td>Writes a star rating to <code>.xmp</code> files next to the RAW files (not to JPEG): gem = 5, leading highlights = 4, best in group = 3. In Lightroom: select the photos → Metadata → Read Metadata from Files. An existing rating (that is not zero) is not overwritten, and a <code>.bak</code> backup is created for an existing sidecar. <b>This writing feature has only been tested on mock files</b>, so it's best to try it first on a small folder.</td></tr>
+<tr><td><code>--overwrite-ratings</code></td><td>Allows overwriting existing ratings.</td></tr>
+<tr><td><code>--catalog קטלוג.lrcat</code></td><td>Instead of a folder, selects photos from a Lightroom catalog (close Lightroom first). You can narrow it down with <code>--since 2026-10-01</code>, <code>--until</code>, <code>--collection "שם"</code> or <code>--folder-contains טקסט</code>. The catalog is read only and is not changed. <b>Not tested against a real catalog.</b></td></tr>
+</table>
+
+<h2>7. Mode B: a photo archive for a portfolio</h2>
+<p>Two steps: basic culling without AI, then AI rating.</p>
+<h3>Step 1: <code>photo_triage.py</code> (culling without AI)</h3>
+<pre class="cli">python photo_triage.py "E:\Photos\Archive" --list-cameras
+python photo_triage.py "E:\Photos\Archive" --out "C:\triage"</pre>
+<ul>
+<li>The first command only shows which cameras appear in the files (and if you set <code>--cameras</code>, it marks the approved ones).</li>
+<li>The tool takes <b>JPEG files only</b>. To limit it to certain cameras, add <code>--cameras "R6 Mark II,250D"</code> (default: all cameras). To skip folders by name, add <code>--exclude word</code>. The tool also rejects blurry or very dark photos.</li>
+<li>It creates small copies (<code>thumbs</code>), numbered contact sheets (<code>sheets</code>) and a report (<code>report.csv</code>, with the reason for each rejection). Nothing is deleted.</li>
+<li>You can adjust the sensitivity with <code>--blur 40</code> (a lower number = more lenient).</li>
+</ul>
+<h3>Step 2: <code>ai_rate.py</code> (AI rating)</h3>
+<pre class="cli">python ai_rate.py rate "C:\triage" --limit 2
+python ai_rate.py rate "C:\triage"
+python ai_rate.py refine "C:\triage"</pre>
+<p>Here too you can add <code>--provider</code>, <code>--model</code>, <code>--key</code>, <code>--base-url</code> and <code>--delay</code>. <code>python ai_rate.py models "C:\triage"</code> shows the available models.</p>
+<ul>
+<li><b><code>rate</code></b> rates the contact sheets (a score of 1–10 and a category for each photo) and saves to <code>ai_scores.csv</code>.</li>
+<li><b><code>refine</code></b> checks the best photos again at a higher resolution, and copies the originals of the finalists into the <code>finalists</code> folder. Portraits get a stronger check.</li>
+</ul>
+<div class="note"><b>Protection from old results:</b> if you run step 1 again on the same folder, the photo numbers change. The tool detects this, moves the old ratings to a folder named <code>old_results_...</code> and starts a new rating, so the results don't get mixed up.</div>
+<div class="warn"><b>Important limitation:</b> in archive rating, the model sees small images inside a contact sheet, so it makes quite a few mistakes. Don't delete photos based on a low score; use it only as a hint. If the rating doesn't match your taste, try Mode A on small groups.</div>
+
+<h2>7a. Duplicates (<code>dupes.py</code>)</h2>
+<p>Finds files that are exactly identical (the same file copied several times), and the same photo saved again at a different size or compression. <b>The tool only reports, and doesn't move or delete anything.</b> In each group it suggests keeping the largest image.</p>
+<p><b>Burst shots, or several photos from the same angle, are not duplicates.</b> For two files to count as "nearly identical," they must look almost identical at every pixel, and their capture times (EXIF) must also match. Two burst shots were taken at different times, so they won't be matched. Two photos that look identical, where one of them has no capture time, are matched only if there is no conflict in the times.</p>
+<pre class="cli">python dupes.py "D:\Photos" --recursive
+python dupes.py "D:\Photos" --out "D:\dupes_report" --no-near</pre>
+<p>In the interface: the "Duplicates" tab. The report (<code>report.html</code>, with thumbnail images) and the spreadsheet (<code>duplicates.csv</code>) are saved in the report folder.</p>
+
+<h2>7b. Matching your taste (<code>agreement.py</code>)</h2>
+<p>A natural question is how far you can trust the AI's rating. This check (in the "Advanced..." window) compares the results of a rated session with your choices: the stars and Pick flags you gave the same photos in Lightroom. It doesn't send anything anywhere, and it doesn't change the catalog (the catalog is read from a temporary copy).</p>
+<ol>
+<li>Rate a session yourself in Lightroom, one that the tool has already rated. <b>Important:</b> if the tool wrote stars to Lightroom and they were imported, those stars belong to the AI itself, and the comparison is meaningless. Use a session that was rated before the tool was used on it.</li>
+<li>On the tab, choose the session's results folder (where <code>ratings.csv</code> is), the catalog file, and how many stars count as your choice (default: 3). A photo with a Pick flag always counts as your choice. Photos without stars count as photos you did not choose.</li>
+<li>Click <b>Run</b>. The result appears in the text in the log, and in the report (<code>agreement/report.html</code>) with the spreadsheet <code>agreement.csv</code>.</li>
+</ol>
+<table>
+<tr><th>Metric</th><th>What it means</th></tr>
+<tr><td><b>Separation power (AUC)</b></td><td>The chance that a photo you chose got a higher score than a photo you did not choose. 0.50 = like flipping a coin, 1.00 = perfect. Roughly 0.80 and above = a good match, 0.65–0.80 = moderate, below that = weak.</td></tr>
+<tr><td><b>Match at the top of the ranking</b></td><td>Among the photos the AI rated highest (as many as the number of photos you chose), how many you actually chose, compared with what would happen by chance.</td></tr>
+<tr><td><b>Match within groups</b></td><td>In groups of similar shots: how often the photo the AI picked as best is one of the ones you chose.</td></tr>
+<tr><td><b>Highlights</b></td><td>How many of the highlights the AI picked were also picked by you.</td></tr>
+<tr><td><b>Rejected in the upfront culling</b></td><td>Photos you chose that the tool skipped in advance. If there are many, lower the blur threshold.</td></tr>
+</table>
+<p>The report also shows the photos you chose that the AI rated low, and the photos the AI rated high that you did not choose, so you can see what it missed and what it raised by mistake. When you chose only a few photos (fewer than 15), the result is not stable, and the tool notes this. If the match is weak, try another model, or describe your taste in the <b>taste file</b>.</p>
+<div class="note">The check was built around the structure of the Lightroom Classic catalog, and it was tested only on a mock catalog. If there is an error reading the catalog, it is shown in the log.</div>
+
+<h2>7c. Double check with another model</h2>
+<p>Instead of relying on one model, you can rate the session with two models and let a third model decide only the disagreements. On the "Photo session" tab, tick <b>Double check</b> and choose a provider and an extra model (a different provider is fine, with its own key).</p>
+<p>When the extra model (or the judge) belongs to a different provider than the main one, its own <b>API key</b> field and a <b>Show available models</b> button appear below the choice, as in the main connection. A key already entered for that provider, saved or set on the computer, is filled in for you. The "Server address" field appears only for providers where you run your own server. The key is saved only if you ticked "Remember the key".</p>
+<ol>
+<li>Both models rate the same photos. When their scores are far apart (default: a difference of 2 points or more), the photo counts as <b>in dispute</b>.</li>
+<li>In a group of burst shots, a dispute is when the two models picked a different best shot.</li>
+<li>If you chose a judge (in the "Advanced..." window), only the photos and groups in dispute are sent to it. For a single photo the final score is the median of the three scores. For a burst, the photo that two of the three models picked wins. If all three picked a different one, the group is marked "Not settled".</li>
+<li>Without a judge the final score is the average, and the disagreements are marked in the report.</li>
+</ol>
+<p><b>Should the judge be shown the earlier scores?</b> By default, no. A judge that sees "one gave 3 and one gave 8" tends to lean toward one of them, and then it is no longer an independent opinion. You can turn this on in the "Advanced..." window.</p>
+<div class="note">The photos are sent to every provider you chose, and before each run the tool shows which provider gets what and roughly how many requests. It is usually about double the number of requests, plus a small part for the judge, so on a free daily quota it means fewer photos per day. The report shows each model's score, and a line at its top summarizes how many photos were in dispute.</div>
+<pre class="cli">python rate_raw.py "D:\Photos\session" --model gemini-2.5-flash --second-provider openai --second-model gpt-4o-mini --judge-provider anthropic --judge-model claude-haiku-4-5-20251001</pre>
+
+<h2>8. EXE version (no Python)</h2>
+<ul>
+<li>Running <code>build_exe.bat</code> builds <code>FocalPick.exe</code> in the <code>dist</code> folder. It attaches the <code>lang</code> folder and <code>THIRD_PARTY_NOTICES.txt</code> to it, if they exist. (Before building, it's best to run <code>python make_notices.py</code> to update the list of library licenses.) You can copy just that file to another Windows computer, and there too you don't need Python.</li>
+<li>The EXE is <b>not digitally signed</b>, so Windows (especially with Smart App Control) or an antivirus may block it or warn about it, even when it is safe. If this happens, run it with <code>python photo_tools_gui.py</code>.</li>
+<li>The first start is a little slow. There is no terminal window, so if it doesn't open, run it from the command line to see the error. The rawpy library is not included, and the tool reads RAW files with its own internal method.</li>
+<li>It was built on Windows, so it works only on Windows. It has not been tested on a computer without Python.</li>
+<li><b>Mac:</b> there is no EXE. With Python from python.org (including Tk), run <code>python3 photo_tools_gui.py</code> or double-click <code>start_gui.command</code>. Dragging files into the window works only on Windows, and the key is saved in the settings file rather than in secure storage. The interface has not been tested on Mac.</li>
+</ul>
+
+<h2>9. Privacy and quotas</h2>
+<ul>
+<li><b>Privacy:</b> the photos are sent <b>to the provider you chose</b>. On free tiers, the provider (for example Google, or the providers behind the <code>:free</code> models on OpenRouter) may use the content to improve its products. Only <b>previews or small copies</b> are sent, not the original files, but if they include photos of people, keep that in mind. The previews are re-created and don't carry the EXIF data of the original (GPS location, camera details and more). A local model (Ollama, LM Studio) doesn't send anything out.</li>
+<li><b>Quotas:</b> each model has a daily and a per-minute request limit, and the limits are separate for each model. In a session, each group is one request (plus one more for the highlights step), so 30 groups amount to about 31 requests. When the daily quota runs out, the tool stops immediately and explains why, and progress is saved. Run it again the next day, or switch to another model or provider. You can check your Gemini quota at <code>ai.dev/rate-limit</code>. The tool remembers locally how many requests it sent and at what number the quota ran out last time (the file <code>.photo_tools_usage.json</code> in the user folder, with no photos and no keys), and uses this to warn you in advance.</li>
+</ul>
+
+<h2>10. Troubleshooting</h2>
+<table>
+<tr><th>What you see</th><th>What to do</th></tr>
+<tr><td>The window opens for a moment and closes</td><td>You started it by double-clicking. Open a <code>cmd</code> window yourself and run it from there.</td></tr>
+<tr><td><code>can't open file ... No such file</code></td><td>You are not in the right folder. Run <code>cd /d C:\photo_triage</code> and try again.</td></tr>
+<tr><td><code>'python' is not recognized</code></td><td>Try <code>py</code> instead of <code>python</code>, or reinstall Python with the "Add to PATH" option checked.</td></tr>
+<tr><td>No API key / the key was rejected</td><td>On the command line: run <code>set ...=המפתח</code> again <b>in the same window</b> (it is forgotten in every new window). Check that the key belongs to the provider you chose (Groq and Grok are two different companies). If it was rejected, create a new key.</td></tr>
+<tr><td><code>HTTP 403 ... error code: 1010</code></td><td>A Cloudflare block based on the identity of the software, not a problem with the key. It was fixed in the latest version. If it comes back, update the files.</td></tr>
+<tr><td><code>Too many images ... supports up to N images</code></td><td>The model accepts fewer images per request. The tool detects this, reduces the groups and continues. With small groups, the comparison between photos is less good, so a model that accepts more images is recommended.</td></tr>
+<tr><td>Error 503</td><td>The provider's server is overloaded. The tool tries again on its own. If it stops, run it again in a few minutes.</td></tr>
+<tr><td>Error 429 / quota</td><td>The tool shows the reason given by the server. Temporary overload: it waits and tries again on its own. Daily quota: the tool stops immediately, and progress is saved. Tomorrow, run the same command, or use another model or provider.</td></tr>
+<tr><td>Error 404 or 400 about the model name</td><td>The name is outdated, or the model doesn't understand images. In the interface: "Show available models". On the command line: <code>python ai_rate.py models "C:\photo_triage" --provider שם</code>, and choose a vision model.</td></tr>
+<tr><td><code>An Application Control policy has blocked this file</code> on a <code>.bat</code> or EXE file</td><td>Smart App Control blocks unsigned executable files. Run it directly with <code>python photo_tools_gui.py</code> from the command window.</td></tr>
+<tr><td><code>DLL load failed while importing _imaging</code> / <code>Application Control policy has blocked this file</code> when opening the program (also through Python)</td><td>Windows (Smart App Control) blocks the Pillow library because it is unsigned and unknown to it. The program shows a message instead of crashing. Fixes: run with Python 3.12 or 3.13 and install Pillow there: <code>py -3.12 -m pip install --force-reinstall pillow numpy</code> and then <code>py -3.12 photo_tools_gui.py</code>; or turn off Smart App Control (Windows Security, App &amp; browser control). That removes a layer of protection, and on some Windows versions it cannot be turned back on easily. There is no way to allow a single file.</td></tr>
+<tr><td>The build fails without internet</td><td><code>build_exe.bat</code> skips the installation if the tools are already installed. If they are not, you need internet once.</td></tr>
+<tr><td>Keyboard shortcuts or the right-click menu don't work in fields</td><td>Fixed in the latest version of the interface (it also works with a Hebrew keyboard). Update the files.</td></tr>
+<tr><td>The interface is bigger than the screen</td><td>It scrolls. Use the mouse wheel or the scroll bar, or make the window smaller (the "Run" and "Stop" buttons always stay at the bottom).</td></tr>
+<tr><td><code>DLL load failed ... Application Control policy has blocked</code> (on rawpy)</td><td>Windows blocks the library. <b>You don't need to do anything</b>, because the tool switches automatically to its internal method and shows a note about it.</td></tr>
+<tr><td><code>PermissionError</code> at the end</td><td>The CSV file is open in Excel. Close it and run again (it will finish in seconds).</td></tr>
+<tr><td>Landscape photos show up rotated</td><td>Report it. This is a bug in the orientation the tool detects in RAW files.</td></tr>
+<tr><td>Many different photos in the same group</td><td>Run it again with <code>--similarity 0.20</code> (a lower number = smaller groups).</td></tr>
+<tr><td>Only Hebrew appears when choosing a language</td><td>The program couldn't find the language files. Make sure the <code>lang</code> folder (with <code>en.json</code> inside it) is next to <code>photo_tools_gui.py</code>, and if you built an EXE, rebuild it.</td></tr>
+<tr><td>HEIC files are skipped</td><td>You need to install the component: <code>pip install pillow-heif</code>.</td></tr>
+<tr><td>Hebrew is displayed reversed</td><td>Open <b>Windows Terminal</b> instead of the old <code>cmd</code>.</td></tr>
+</table>
+
+<div class="cli">
+<h2>11. Quick summary</h2>
+<p>Graphical interface: <code>python photo_tools_gui.py</code>. Command line:</p>
+<pre>cd /d C:\photo_triage
+set GEMINI_API_KEY=YOUR_KEY
+python rate_raw.py "session_folder" --out "C:\rating\session" --prepare-only
+python rate_raw.py "session_folder" --out "C:\rating\session" --limit 3
+python rate_raw.py "session_folder" --out "C:\rating\session"</pre>
+<p>Then: open <code>C:\rating\session\report.html</code> in a browser.</p>
+</div>
+
+<div class="note"><b>What was tested:</b> extraction from CR3 files, grouping, and rating with Gemini were tested on real files. Groq and OpenRouter were only partly tested. The other providers, the interface, JPEG and HEIC files, the match check, and everything related to Lightroom (writing XMP and reading the catalog) were tested only on mock data or servers, so try them first on a small copy. The interface has not been tested on Mac.</div>
+
+<p style="margin-top:40px;color:#888;font-size:12px;text-align:center">All rights reserved to Nitay Sandorffy ©</p>
+</body>
+</html>

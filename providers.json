@@ -1,0 +1,196 @@
+{
+ "_comment": "נתוני הספקים. אפשר לתקן כאן מגבלות, הערות ושמות מודלים בלי לגעת בקוד. ראה CONTRIBUTING.md",
+ "order": [
+  "gemini",
+  "openai",
+  "anthropic",
+  "xai",
+  "mistral",
+  "groq",
+  "openrouter",
+  "together",
+  "fireworks",
+  "ollama",
+  "lmstudio",
+  "custom"
+ ],
+ "providers": {
+  "gemini": {
+   "label": "Google Gemini",
+   "kind": "gemini",
+   "base": "https://generativelanguage.googleapis.com/v1beta",
+   "env": [
+    "GEMINI_API_KEY",
+    "GOOGLE_API_KEY"
+   ],
+   "models": [
+    "gemini-3.5-flash-lite",
+    "gemini-3-flash-preview",
+    "gemini-2.5-flash-lite",
+    "gemini-2.5-flash",
+    "gemini-3.5-flash"
+   ],
+   "delay": 7,
+   "max_images": 16,
+   "key_required": true,
+   "note": "יש שכבה חינמית עם מגבלות יומיות (aistudio.google.com)."
+  },
+  "openai": {
+   "label": "OpenAI",
+   "kind": "openai",
+   "base": "https://api.openai.com/v1",
+   "env": [
+    "OPENAI_API_KEY"
+   ],
+   "models": [
+    "gpt-4o-mini"
+   ],
+   "delay": 2,
+   "max_images": 10,
+   "key_required": true,
+   "note": "בדרך כלל בתשלום לפי שימוש. אפשר לטעון את רשימת המודלים הנוכחית."
+  },
+  "anthropic": {
+   "label": "Anthropic (Claude)",
+   "kind": "anthropic",
+   "base": "https://api.anthropic.com/v1",
+   "env": [
+    "ANTHROPIC_API_KEY"
+   ],
+   "models": [
+    "claude-haiku-4-5-20251001",
+    "claude-sonnet-5-5"
+   ],
+   "delay": 2,
+   "max_images": 20,
+   "key_required": true,
+   "note": "בדרך כלל בתשלום לפי שימוש (console.anthropic.com)."
+  },
+  "xai": {
+   "label": "xAI (Grok)",
+   "kind": "openai",
+   "base": "https://api.x.ai/v1",
+   "env": [
+    "XAI_API_KEY"
+   ],
+   "models": [],
+   "delay": 2,
+   "max_images": 10,
+   "key_required": true,
+   "note": "Grok של איילון מאסק (x.ai). לא להתבלבל עם Groq. בדרך כלל בתשלום. כדאי ללחוץ 'הצג מודלים זמינים' ולבחור מודל שמבין תמונות."
+  },
+  "mistral": {
+   "label": "Mistral",
+   "kind": "openai",
+   "base": "https://api.mistral.ai/v1",
+   "env": [
+    "MISTRAL_API_KEY"
+   ],
+   "models": [
+    "mistral-small-latest"
+   ],
+   "delay": 2,
+   "max_images": 8,
+   "key_required": true,
+   "note": "ייתכן שיש שכבה חינמית עם מגבלות. כדאי לבדוק באתר."
+  },
+  "groq": {
+   "label": "Groq",
+   "kind": "openai",
+   "base": "https://api.groq.com/openai/v1",
+   "env": [
+    "GROQ_API_KEY"
+   ],
+   "models": [],
+   "delay": 3,
+   "max_images": 5,
+   "key_required": true,
+   "note": "Groq (groq.com, החברה של שבבי ה-LPU), לא Grok של xAI. ייתכן שיש שכבה חינמית עם מגבלות. מוגבל ל-5 תמונות בבקשה. בחר מודל שמבין תמונות."
+  },
+  "openrouter": {
+   "label": "OpenRouter",
+   "kind": "openai",
+   "base": "https://openrouter.ai/api/v1",
+   "env": [
+    "OPENROUTER_API_KEY"
+   ],
+   "models": [
+    "google/gemma-4-31b-it:free",
+    "google/gemma-4-26b-a4b-it:free",
+    "nvidia/nemotron-nano-12b-v2-vl:free",
+    "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free"
+   ],
+   "delay": 4,
+   "max_images": 8,
+   "key_required": true,
+   "free_daily": 50,
+   "free_suffix": ":free",
+   "note": "שער למודלים רבים. מודלים עם הסיומת :free הם חינמיים, אבל מוגבלים ל-20 בקשות בדקה ול-50 ביום (1,000 ביום אחרי רכישה חד-פעמית של 10 דולר בקרדיטים). רשימת המודלים החינמיים משתנה, אז כדאי ללחוץ 'הצג מודלים זמינים'. חלק מהמודלים החינמיים עלולים לשמור או לאמן על מה שנשלח."
+  },
+  "together": {
+   "label": "Together AI",
+   "kind": "openai",
+   "base": "https://api.together.xyz/v1",
+   "env": [
+    "TOGETHER_API_KEY"
+   ],
+   "models": [],
+   "delay": 2,
+   "max_images": 8,
+   "key_required": true,
+   "note": "בדרך כלל בתשלום. בחר מודל שמבין תמונות מהרשימה."
+  },
+  "fireworks": {
+   "label": "Fireworks AI",
+   "kind": "openai",
+   "base": "https://api.fireworks.ai/inference/v1",
+   "env": [
+    "FIREWORKS_API_KEY"
+   ],
+   "models": [],
+   "delay": 2,
+   "max_images": 8,
+   "key_required": true,
+   "note": "בדרך כלל בתשלום. בחר מודל שמבין תמונות מהרשימה."
+  },
+  "ollama": {
+   "label": "Ollama (רץ במחשב שלך)",
+   "kind": "openai",
+   "base": "http://localhost:11434/v1",
+   "env": [],
+   "models": [
+    "llama3.2-vision"
+   ],
+   "delay": 0,
+   "max_images": 4,
+   "key_required": false,
+   "local": true,
+   "note": "חינם ופרטי, רץ במחשב שלך. צריך להתקין את Ollama ולהוריד מודל ראייה. איטי בלי כרטיס מסך חזק."
+  },
+  "lmstudio": {
+   "label": "LM Studio (רץ במחשב שלך)",
+   "kind": "openai",
+   "base": "http://localhost:1234/v1",
+   "env": [],
+   "models": [],
+   "delay": 0,
+   "max_images": 4,
+   "key_required": false,
+   "local": true,
+   "note": "חינם ופרטי, רץ במחשב שלך. טען מודל ראייה והפעל את השרת המקומי ב-LM Studio."
+  },
+  "custom": {
+   "label": "אחר (שרת תואם OpenAI)",
+   "kind": "openai",
+   "base": "",
+   "env": [
+    "AI_API_KEY"
+   ],
+   "models": [],
+   "delay": 2,
+   "max_images": 8,
+   "key_required": false,
+   "note": "לשרת משלך או לספק שלא ברשימה. חובה למלא כתובת בסיס, למשל https://.../v1"
+  }
+ }
+}
