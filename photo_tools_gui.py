@@ -59,7 +59,6 @@ try:
     import agreement
     import dupes
     import help_view
-    import line_select
     import log_view
     import llm_providers as llm
     import photo_triage
@@ -76,7 +75,7 @@ GENRE_LABELS = {"": "ללא, דירוג כללי", "street": "רחוב", "events
 APP_NAME = "FocalPick"
 APP_VERSION = "1.0"
 # Fill these in once the GitHub project and the Sponsors page exist: the matching button then appears in the About window.
-REPO_URL = ""          # e.g. "https://github.com/<user>/focalpick"
+REPO_URL = "https://github.com/nitaysand/FocalPick"          # e.g. "https://github.com/<user>/focalpick"
 SPONSOR_URL = ""       # e.g. "https://github.com/sponsors/<user>"
 SETTINGS_FILE = Path.home() / ".photo_tools_gui.json"
 IS_WIN = sys.platform == "win32"

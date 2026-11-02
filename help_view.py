@@ -22,7 +22,6 @@ from tkinter import ttk
 
 import bidi_text
 import i18n
-import line_select
 from smooth_scroll import SmoothScroller
 
 HERE = Path(__file__).resolve().parent
@@ -327,7 +326,6 @@ class GuideWindow:
         self.vsb.configure(command=self.text.yview)
         self.text.pack(side=i18n.X("left"), fill="both", expand=True)
         self.text.bind("<Key>", self.on_key)
-        line_select.install(self.text, lambda: (P["sel"], P["sel_fg"]))
         self.smooth = SmoothScroller(self.text)
         self.text.bind("<MouseWheel>", lambda e: (self.smooth.notches(1 if e.delta > 0 else -1), "break")[1])
         self.text.bind("<Button-4>", lambda e: (self.smooth.notches(1), "break")[1])
